@@ -45,6 +45,28 @@ namespace NuGet.CommandLine
         [Option(typeof(NuGetCommand), "InstallCommandSolutionDirectory")]
         public string SolutionDirectory { get; set; }
 
+        [Option(typeof(NuGetCommand), "DependencyVersion")]
+        public string dependencyBehavior { get; set; }
+
+        private DependencyBehavior DependencyBehavior
+        {
+            get
+            {
+                if(dependencyBehavior.Equals("Lowest", StringComparison.InvariantCultureIgnoreCase))
+                    return DependencyBehavior.Lowest;
+                if(dependencyBehavior.Equals("Highest", StringComparison.InvariantCultureIgnoreCase))
+                    return DependencyBehavior.Highest;
+                if(dependencyBehavior.Equals("HighestMinor", StringComparison.InvariantCultureIgnoreCase))
+                    return DependencyBehavior.HighestMinor;
+                if(dependencyBehavior.Equals("HighestPatch", StringComparison.InvariantCultureIgnoreCase))
+                    return DependencyBehavior.HighestPatch;
+
+                return DependencyBehavior.Ignore;
+
+            }
+        }
+
+
         [ImportingConstructor]
         public InstallCommand()
             : this(MachineCache.Default)
@@ -221,7 +243,7 @@ namespace NuGet.CommandLine
             var allowPrerelease = Prerelease || (version != null && version.IsPrerelease);
 
             var resolutionContext = new ResolutionContext(
-                DependencyBehavior.Lowest,
+                DependencyBehavior,
                 includePrelease: allowPrerelease,
                 includeUnlisted: true,
                 versionConstraints: VersionConstraints.None);
